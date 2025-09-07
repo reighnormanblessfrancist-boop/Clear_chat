@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/reighnormanblessfrancist-boop/Clear_chat/refs/heads/main/clear.chat", true))()
