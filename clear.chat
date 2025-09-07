@@ -1,18 +1,99 @@
---// Fast Clear Chat by spelling "clearing" repeatedly for 3 seconds
+--// Confirmation GUI for Clear Chat (Draggable)
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
 local sayMsgRequest = ReplicatedStorage:WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest")
 
-local word = "clearing"
-
+-- Clear Chat Function
 local function clearChat()
+    local word = "clearing"
     local startTime = tick()
     while tick() - startTime < 3 do
         for i = 1, #word do
             if tick() - startTime >= 3 then break end
             sayMsgRequest:FireServer(string.sub(word, i, i), "All")
-            task.wait(0.05) -- faster speed between letters
+            task.wait(0.05) -- fast speed
         end
     end
 end
 
-clearChat()
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ClearChatConfirm"
+screenGui.Parent = game:GetService("CoreGui")
+
+-- Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 350, 0, 160)
+frame.Position = UDim2.new(0.5, -175, 0.5, -80)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.Parent = screenGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+-- Make frame draggable
+local UserInputService = game:GetService("UserInputService")
+local dragging, dragStart, startPos
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- Text
+local textLabel = Instance.new("TextLabel")
+textLabel.Text = "r you sure u wanna execute you'll get banned from spamin"
+textLabel.Size = UDim2.new(1, -20, 0, 80)
+textLabel.Position = UDim2.new(0, 10, 0, 10)
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.BackgroundTransparency = 1
+textLabel.TextWrapped = true
+textLabel.TextScaled = true
+textLabel.Parent = frame
+
+-- Yes Button
+local yesBtn = Instance.new("TextButton")
+yesBtn.Text = "yes"
+yesBtn.Size = UDim2.new(0.4, 0, 0.25, 0)
+yesBtn.Position = UDim2.new(0.1, 0, 0.65, 0)
+yesBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
+yesBtn.TextColor3 = Color3.new(1, 1, 1)
+yesBtn.Parent = frame
+Instance.new("UICorner", yesBtn).CornerRadius = UDim.new(0, 8)
+
+-- Nuh Button
+local nuhBtn = Instance.new("TextButton")
+nuhBtn.Text = "nuh"
+nuhBtn.Size = UDim2.new(0.4, 0, 0.25, 0)
+nuhBtn.Position = UDim2.new(0.5, 0, 0.65, 0)
+nuhBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+nuhBtn.TextColor3 = Color3.new(1, 1, 1)
+nuhBtn.Parent = frame
+Instance.new("UICorner", nuhBtn).CornerRadius = UDim.new(0, 8)
+
+-- Button logic
+yesBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+    clearChat()
+end)
+
+nuhBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
