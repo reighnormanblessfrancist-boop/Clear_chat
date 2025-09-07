@@ -1,0 +1,18 @@
+--// Fast Clear Chat by spelling "clearing" repeatedly for 3 seconds
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local sayMsgRequest = ReplicatedStorage:WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest")
+
+local word = "clearing"
+
+local function clearChat()
+    local startTime = tick()
+    while tick() - startTime < 3 do
+        for i = 1, #word do
+            if tick() - startTime >= 3 then break end
+            sayMsgRequest:FireServer(string.sub(word, i, i), "All")
+            task.wait(0.05) -- faster speed between letters
+        end
+    end
+end
+
+clearChat()
